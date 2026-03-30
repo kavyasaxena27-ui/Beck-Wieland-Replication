@@ -1,0 +1,15 @@
+# 1. Open R/RStudio
+# 2. Set working directory
+setwd("~/your_project_folder")
+
+# 3. Source script
+source("beck_wieland_uk_correlation.R")
+
+# 4. Load your data
+uk_data <- read.csv("BOE_output_gap_bias.csv")
+ystarbias <- uk_data$Bias
+
+# 5. Run!
+results <- main()
+
+# Done! Check ./results/ folder for figures
