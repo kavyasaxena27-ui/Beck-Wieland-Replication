@@ -1,0 +1,181 @@
+% plot_cc_comparisons.m
+% Three comparison charts: CC vs non-CC world
+% Run AFTER ccflstrict1p_us.m (relies on its workspace variables)
+%
+% Variables expected from B&W code:
+%   dp      - inflation WITH cross-checking
+%   dp_n    - inflation WITHOUT cross-checking
+%   dmylr   - filtered adjusted money growth (used in CC test)
+%   ni      - nominal interest rate WITH cross-checking
+%   ni_n    - nominal interest rate WITHOUT cross-checking
+%   niadd   - CC adjustment to interest rate
+%   T       - sample length
+
+%% --- Shared settings ---
+quarters = (1965 + (0:T-1)/4)';
+col_cc    = [0.13, 0.47, 0.71];   % blue  - with CC
+col_nocc  = [0.84, 0.15, 0.16];   % red   - without CC
+lw = 1.5;
+
+%% === CHART 1: Inflation ===
+figure('Name', 'Inflation: CC vs No CC', 'Position', [100 100 900 400]);
+
+plot(quarters, dp_n, '-', 'Color', col_nocc, 'LineWidth', lw); hold on;
+plot(quarters, dp,   '-', 'Color', col_cc,   'LineWidth', lw);
+yline(0, 'k:', 'LineWidth', 1);
+
+xlabel('Year'); ylabel('Inflation (pp deviation from target)');
+title('Inflation: Cross-Checking vs No Cross-Checking');
+legend('No cross-check', 'Cross-check', 'Location', 'best');
+grid on; xlim([1965 1996]);
+
+% Annotate variance reduction
+var_nocc = var(dp_n);
+var_cc   = var(dp);
+reduction = 100*(var_nocc - var_cc)/var_nocc;
+text(1966, min(dp_n)*0.85, ...
+    sprintf('Var reduction: %.1f%%', reduction), ...
+    'FontSize', 9, 'Color', col_cc);
+
+%% === CHART 2: Filtered money growth ===
+% dmylr is the filtered adjusted money growth used in the CC test.
+% In the no-CC world the filter still runs — the difference is the
+% interest rate path, which feeds back into money demand.
+% If your code saves dmylr_n separately, use it; otherwise we approximate
+% by noting the CC world dmylr already reflects the adjusted path.
+
+figure('Name', 'Filtered Money Growth: CC vs No CC', 'Position', [100 550 900 400]);
+
+% Check if no-CC version of dmylr exists
+if exist('dmylr_n', 'var')
+    plot(quarters, dmylr_n, '-', 'Color', col_nocc, 'LineWidth', lw); hold on;
+    plot(quarters, dmylr,   '-', 'Color', col_cc,   'LineWidth', lw);
+    legend('No cross-check', 'Cross-check', 'Location', 'best');
+else
+    % Only CC version available — plot with note
+    plot(quarters, dmylr, '-', 'Color', col_cc, 'LineWidth', lw); hold on;
+    warning('dmylr_n not found — plotting CC world only. Save dmylr before niadd is applied to get no-CC version.');
+    legend('Cross-check (filtered money growth)', 'Location', 'best');
+end
+
+yline(0, 'k:', 'LineWidth', 1);
+xlabel('Year'); ylabel('Filtered adjusted money growth (pp)');
+title('Filtered Money Growth: Cross-Checking vs No Cross-Checking');
+grid on; xlim([1965 1996]);
+
+%% === CHART 3: Nominal interest rate ===
+figure('Name', 'Nominal Rate: CC vs No CC', 'Position', [100 200 900 400]);
+
+if exist('ni_n', 'var')
+    % Both series saved separately
+    plot(quarters, ni_n, '-', 'Color', col_nocc, 'LineWidth', lw); hold on;
+    plot(quarters, ni,   '-', 'Color', col_cc,   'LineWidth', lw);
+    legend('No cross-check', 'Cross-check', 'Location', 'best');
+else
+    % Reconstruct no-CC rate as ni - niadd
+    ni_n_approx = ni - niadd;
+    plot(quarters, ni_n_approx, '-', 'Color', col_nocc, 'LineWidth', lw); hold on;
+    plot(quarters, ni,          '-', 'Color', col_cc,   'LineWidth', lw);
+    legend('No cross-check (approx: ni - niadd)', 'Cross-check', 'Location', 'best');
+end
+
+yline(0, 'k:', 'LineWidth', 1);
+xlabel('Year'); ylabel('Nominal interest rate (pp)');
+title('Nominal Interest Rate: Cross-Checking vs No Cross-Checking');
+grid on; xlim([1965 1996]);
+
+%% --- Print summary ---
+fprintf('\n=== Summary ===\n');
+fprintf('Inflation variance  - No CC: %.4f | CC: %.4f | Reduction: %.1f%%\n', ...
+    var(dp_n), var(dp), 100*(var(dp_n)-var(dp))/var(dp_n));
+fprintf('Inflation mean      - No CC: %.4f | CC: %.4f\n', mean(dp_n), mean(dp));% plot_cc_comparisons.m
+% Three comparison charts: CC vs non-CC world
+% Run AFTER ccflstrict1p_us.m (relies on its workspace variables)
+%
+% Variables expected from B&W code:
+%   dp      - inflation WITH cross-checking
+%   dp_n    - inflation WITHOUT cross-checking
+%   dmylr   - filtered adjusted money growth (used in CC test)
+%   ni      - nominal interest rate WITH cross-checking
+%   ni_n    - nominal interest rate WITHOUT cross-checking
+%   niadd   - CC adjustment to interest rate
+%   T       - sample length
+
+%% --- Shared settings ---
+quarters = (1965 + (0:T-1)/4)';
+col_cc    = [0.13, 0.47, 0.71];   % blue  - with CC
+col_nocc  = [0.84, 0.15, 0.16];   % red   - without CC
+lw = 1.5;
+
+%% === CHART 1: Inflation ===
+figure('Name', 'Inflation: CC vs No CC', 'Position', [100 100 900 400]);
+
+plot(quarters, dp_n, '-', 'Color', col_nocc, 'LineWidth', lw); hold on;
+plot(quarters, dp,   '-', 'Color', col_cc,   'LineWidth', lw);
+yline(0, 'k:', 'LineWidth', 1);
+
+xlabel('Year'); ylabel('Inflation (pp deviation from target)');
+title('Inflation: Cross-Checking vs No Cross-Checking');
+legend('No cross-check', 'Cross-check', 'Location', 'best');
+grid on; xlim([1965 1996]);
+
+% Annotate variance reduction
+var_nocc = var(dp_n);
+var_cc   = var(dp);
+reduction = 100*(var_nocc - var_cc)/var_nocc;
+text(1966, min(dp_n)*0.85, ...
+    sprintf('Var reduction: %.1f%%', reduction), ...
+    'FontSize', 9, 'Color', col_cc);
+
+%% === CHART 2: Filtered money growth ===
+% dmylr is the filtered adjusted money growth used in the CC test.
+% In the no-CC world the filter still runs — the difference is the
+% interest rate path, which feeds back into money demand.
+% If your code saves dmylr_n separately, use it; otherwise we approximate
+% by noting the CC world dmylr already reflects the adjusted path.
+
+figure('Name', 'Filtered Money Growth: CC vs No CC', 'Position', [100 550 900 400]);
+
+% Check if no-CC version of dmylr exists
+if exist('dmylr_n', 'var')
+    plot(quarters, dmylr_n, '-', 'Color', col_nocc, 'LineWidth', lw); hold on;
+    plot(quarters, dmylr,   '-', 'Color', col_cc,   'LineWidth', lw);
+    legend('No cross-check', 'Cross-check', 'Location', 'best');
+else
+    % Only CC version available — plot with note
+    plot(quarters, dmylr, '-', 'Color', col_cc, 'LineWidth', lw); hold on;
+    warning('dmylr_n not found — plotting CC world only. Save dmylr before niadd is applied to get no-CC version.');
+    legend('Cross-check (filtered money growth)', 'Location', 'best');
+end
+
+yline(0, 'k:', 'LineWidth', 1);
+xlabel('Year'); ylabel('Filtered adjusted money growth (pp)');
+title('Filtered Money Growth: Cross-Checking vs No Cross-Checking');
+grid on; xlim([1965 1996]);
+
+%% === CHART 3: Nominal interest rate ===
+figure('Name', 'Nominal Rate: CC vs No CC', 'Position', [100 200 900 400]);
+
+if exist('ni_n', 'var')
+    % Both series saved separately
+    plot(quarters, ni_n, '-', 'Color', col_nocc, 'LineWidth', lw); hold on;
+    plot(quarters, ni,   '-', 'Color', col_cc,   'LineWidth', lw);
+    legend('No cross-check', 'Cross-check', 'Location', 'best');
+else
+    % Reconstruct no-CC rate as ni - niadd
+    ni_n_approx = ni - niadd;
+    plot(quarters, ni_n_approx, '-', 'Color', col_nocc, 'LineWidth', lw); hold on;
+    plot(quarters, ni,          '-', 'Color', col_cc,   'LineWidth', lw);
+    legend('No cross-check (approx: ni - niadd)', 'Cross-check', 'Location', 'best');
+end
+
+yline(0, 'k:', 'LineWidth', 1);
+xlabel('Year'); ylabel('Nominal interest rate (pp)');
+title('Nominal Interest Rate: Cross-Checking vs No Cross-Checking');
+grid on; xlim([1965 1996]);
+
+%% --- Print summary ---
+fprintf('\n=== Summary ===\n');
+fprintf('Inflation variance  - No CC: %.4f | CC: %.4f | Reduction: %.1f%%\n', ...
+    var(dp_n), var(dp), 100*(var(dp_n)-var(dp))/var(dp_n));
+fprintf('Inflation mean      - No CC: %.4f | CC: %.4f\n', mean(dp_n), mean(dp));
